@@ -6,7 +6,7 @@
 ;	Github: 		https://github.com/huykingsofm/ALU_Simulator.git
 ;
 ;
-;File name:			ALU_API.au3
+;File name:			ALU.au3
 ;Language:			AutoIT
 ;Modified Date:		Dec 10 2018
 ;Purpose: 			support performing some special functions via a program written by Python
@@ -72,6 +72,8 @@
 ;		Return value : "0001010"
 ;
 ;		+Note : support up to unsinged int 64-bit number(uint64 in C++ or Python)
+;
+;	See detail in below......
 ;=======================================================
 
 
@@ -133,13 +135,13 @@ EndFunc
 
 
 ;================================================
-;Func CallFunc(Connection, Func, Arg)
+;Func ALUCall(Connection, Func, Arg)
 ;Perform the function via a written program
 ;
 ;Parameters:
-;	+ Connection : the handle value which is returned by ALUConnect()
-;	+ Func : name of function
-;	+ Arg : Arguments of function. It's a string and seperated by commas
+;	+ Connection : 	the handle value which is returned by ALUConnect()
+;	+ Func : 		name of function
+;	+ Arg : 		Arguments of function. It's a string and seperated by commas
 ;Return:
 ;	+ If fail connection error, return error
 ;	+ If success, return value in responding function
@@ -150,7 +152,7 @@ EndFunc
 ;	2. CallFunc(Connection, "ALU", "10, 7")
 ;	   Return : ""
 ;================================================
-Func CallFunc($Connection, $func, $arg)
+Func ALUCall($Connection, $func, $arg)
    ;join function name and argument into one string to pass it to API
    $call = $func & "|" & $arg
 
@@ -166,10 +168,10 @@ Func CallFunc($Connection, $func, $arg)
    $limit_time = 5
    Do
 	  TCPSend($Connection, $call)
-	  $revData1 = TCPRecv($Connection, 1024 * 5)
+	  $revData1 = TCPRecv($Connection, 1024 * 50)
 	  Sleep(2)
 	  TCPSend($Connection, $call)
-	  $revData2 = TCPRecv($Connection, 1024 * 5)
+	  $revData2 = TCPRecv($Connection, 1024 * 50)
 	  $limit_time -= 1
    Until StringCompare($revData1, $revData2) = 0 Or $limit_time <= 0
 

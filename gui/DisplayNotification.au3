@@ -5,22 +5,34 @@
 ;	Edu Email: 		17520074@gm.uit.edu.vn
 ;	Github: 		https://github.com/huykingsofm/ALU_Simulator.git
 ;
-; File Name: 		error_msg.au3
+; File Name: 		DisplayNotification.au3
 ; Language:			AutoIT
 ; Modified Date:	Dec 10 2018
-; Purpose:			Provide a error message window to notify
+; Purpose:			Provide a notification message window
+;
+; PUBLIC FUNCTION:
+;	DisplayNotification(title, msg)
 ;=============================================================================================================
 ;
 #include-once
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
-#include "gui_utilities.au3"
+#include "utilities.au3"
 
-#Region ### START Koda GUI section ### Form=
-
-Func DisplayError($title, $msg)
-   $ErrorMsg = GUICreate("MSG", 352, 215, 518, 270, BitOR($WS_MINIMIZEBOX,$WS_POPUP,$WS_GROUP))
+;============================================================================
+; Func DisplayNotification(title, msg)
+; Purpose: Display a window to notify user with a title and message
+;
+; Parameters:
+;	+ title:	a title of window
+;	+ msg:		a message will be notified
+; Return:
+;	+ no return
+;=============================================================================
+Func DisplayNotification($title, $msg)
+   #Region # Create GUI
+   $notification = GUICreate("Notification", 352, 215, 518, 270, BitOR($WS_MINIMIZEBOX,$WS_POPUP,$WS_GROUP))
    GUISetBkColor(0xDDDDDD)
 
    $close = GUICtrlCreateLabel("CLOSE", 135, 135, 2 * $W_BUTTON/3, 2 * $H_BUTTON/3, BitOR($SS_CENTER,$SS_CENTERIMAGE))
@@ -41,12 +53,12 @@ Func DisplayError($title, $msg)
 
    $fOverClose = False
    While 1
-	  $cursor = GUIGetCursorInfo($ErrorMsg)
-	  EventWhenCoverLabel($close, $cursor, 0x005555, 0x006666, 135, 135, 2 * $W_BUTTON/3, 2 * $H_BUTTON/3, 15, True, $fOverClose)
+	  $cursor = GUIGetCursorInfo($notification)
+	  EventOnCover($close, $cursor, 0x005555, 0x006666, 135, 135, 2 * $W_BUTTON/3, 2 * $H_BUTTON/3, 15, True, $fOverClose)
 
-	  $click = EventWhenClickLabel($cursor)
+	  $click = ControlOnClick($cursor)
 	  If ($click = $close) Then
-		 GUIDelete($ErrorMsg)
+		 GUIDelete($notification)
 		 ExitLoop
 	  EndIf
    WEnd

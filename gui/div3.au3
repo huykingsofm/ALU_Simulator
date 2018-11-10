@@ -9,17 +9,34 @@
 ; Language:			AutoIT
 ; Modified Date:	Dec 10 2018
 ; Purpose:			Lauch division with 3 registers in detail
+; PUBPLIC FUNCTION:
+;	start_div3(data, nbit)
 ;=============================================================================================================
 ;
 #include-once
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
-#include "gui_utilities.au3"
+#include "utilities.au3"
+
+;============================================================================
+; Func start_div3(data, nbit)
+; Purpose: Create a table contains a log of 3-register-multiple
+;
+; Parameters:
+;	+ data:			value is returned by ALUCall("ALU")
+;	+ nbit:			number of bits will be display on table
+; Return:
+;	+ no return
+;=============================================================================
 
 Func start_div3($data, $nbit)
-   $d = extractData($data, $EXTRACT_DIV3)
+   ; Set some neccessary value
+   $d = extractLog($data, $EXTRACT_DIV3)
+   $sep = Int($nbit/4)
+   $sep = ($sep >= 3) ? $sep : $nbit
 
+   #Region ### CONSTANT
    $COLOR_LABEL = 0x444444
 
    Local $COLOR_ITEM[2]
@@ -38,13 +55,13 @@ Func start_div3($data, $nbit)
 
    $C_UPDOWN = 0x00AAEE
    $C_UPDOWN_HOVER = 0x00BBFF
-
-   #Region ### START Koda GUI section ### Form=
-   $div3 = GUICreate("Form1", 1200, 660, 70, 35, $WS_POPUP)
+   #EndRegion CONSTANT
+   #Region ### Create GUI
+   $div3 = GUICreate("div3", 1200, 660, 70, 35, $WS_POPUP)
    GUISetBkColor(0x333333)
    GUISetFont(9, 100, 0, "Consolas")
 
-   ; Title and Button
+   #Region ### Create Title and Button
    $Title = GUICtrlCreateLabel("ALU SIMULATOR FOR DIVISION WITH 3 REGISTERS", 0, 0, 1200, 68, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Bahnschrift Condensed")
    GUICtrlSetColor(-1, 0xFFFFFF)
@@ -61,8 +78,8 @@ Func start_div3($data, $nbit)
    $back = GUICtrlCreateLabel("BACK", 880, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $COLOR_BUTTON)
-
-   ; Create Label
+   #EndRegion Create title and button
+   #Region ### Create Label
    Local $Label[5]
 
    $x = $PX
@@ -81,7 +98,8 @@ Func start_div3($data, $nbit)
 	  GUICtrlSetBkColor($Label[$i], $COLOR_LABEL)
 	  GUICtrlSetColor($Label[$i], 0xFFFFFF)
    Next
-
+   #EndRegion Create Label
+   #Region ### Create and load init step
    Local $init[5]
    $x = $PX
    $y = $PY - 40
@@ -100,6 +118,14 @@ Func start_div3($data, $nbit)
 	  GUICtrlSetColor($init[$i], 0x000000)
    Next
 
+   ; Load data to initilization label
+   $t = StringSplit($d[1], " ")
+
+   GUICtrlSetData($init[2], seperate($t[1], $sep))
+   GUICtrlSetData($init[3], seperate($t[2], $sep))
+   GUICtrlSetData($init[4], seperate($t[3], $sep))
+   #EndRegion Init step
+   #Region ### Create table
    Local $iter[3]
    Local $step[3][3]
    Local $quotient[3][3]
@@ -135,14 +161,7 @@ Func start_div3($data, $nbit)
 	  GUICtrlSetData($step[$i][0], "1. R = R - D")
 	  GUICtrlSetData($step[$i][2], "3. slr Divisor")
    Next
-
-   ; Load data to initilization label
-   $t = StringSplit($d[1], " ")
-
-   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
-   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
-   GUICtrlSetData($init[4], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
-
+   #EndRegion create table
    ; First load
    $begin = 1
    load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
@@ -156,11 +175,11 @@ Func start_div3($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($div3)
-	  EventWhenCoverLabel($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 70, 100, 60, 22, True, $fOverUp)
-	  EventWhenCoverLabel($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 590, 100, 60, 22, True, $fOverDown)
-	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 880, 590, 100, 60, 22, True, $fOverBack)
+	  EventOnCover($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 70, 100, 60, 22, True, $fOverUp)
+	  EventOnCover($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 590, 100, 60, 22, True, $fOverDown)
+	  EventOnCover($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 880, 590, 100, 60, 22, True, $fOverBack)
 
-	  $click = EventWhenClickLabel($cursor)
+	  $click = ControlOnClick($cursor)
 
 	  Switch $click
 		 Case $back
@@ -187,9 +206,24 @@ Func start_div3($data, $nbit)
    start_selection($data, $nbit)
 EndFunc
 
+;============================================================================
+; Func load_div3(d, begin, nbit, iter, step, quotient, divisor, remainder)
+; Purpose: Fill in table with step begin at <begin>
+;
+; Parameters:
+;	+ d : 		data returned by ALUCall("ALU")
+;	+ begin: 	begining step
+;	+ nbit:		number of bits will be displayed
+;	+ ...:		handler of controls on GUI
+; Return:
+;	+ no return
+;=============================================================================
 Func load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
+   $sep = Int($nbit / 4)
+   $sep = ($sep >= 3) ? $sep : $nbit
 
    $count = ($begin - 1) * 4 + 2
+
    For $i = 0 To getmin(2, $nbit)
 	  $check = Number($d[$count])
 	  GUICtrlSetData($iter[$i], $begin + $i)
@@ -204,9 +238,9 @@ Func load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 	  For $j = 0 To 2
 		 $t = StringSplit($d[$count], " ")
 
-		 GUICtrlSetData($quotient[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
-		 GUICtrlSetData($divisor[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
-		 GUICtrlSetData($remainder[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
+		 GUICtrlSetData($quotient[$i][$j], seperate($t[1], $sep))
+		 GUICtrlSetData($divisor[$i][$j], seperate($t[2], $sep))
+		 GUICtrlSetData($remainder[$i][$j], seperate($t[3], $sep))
 
 		 $count += 1
 	  Next

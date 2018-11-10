@@ -8,22 +8,36 @@
 ; File Name: 		ALU Simulator.au3
 ; Language:			AutoIT
 ; Modified Date:	December 10 2018
-; Purpose:			Lauch selection-UI to select operation
+; Purpose:			Lauch selection form to select operation
+; PUPBLIC FUNCTION:
+;	start_selection(data, nbit)
 ;=============================================================================================================
 ;
 #include-once
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
-#include "gui_utilities.au3"
-#include "InputForm.au3"
+#include "utilities.au3"
 #include "mul3.au3"
 #include "mul2.au3"
 #include "div3.au3"
 
-#Region ### START Koda GUI section ### Form=
+
+
+;============================================================================
+; Func start_selection(data, nbit)
+; Purpose: Create a GUI which provide a option to select seeing a operator log
+;
+; Parameters:
+;	+ data:			value is returned by ALUCall("ALU")
+;	+ nbit:			number of bits will be display on table
+; Return:
+;	+ no return
+;=============================================================================
 Func start_selection($data, $nbit)
-   $selection = GUICreate("Form2", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
+
+   #Region ### Create GUI
+   $selection = GUICreate("selection", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
    GUISetBkColor(0x222222)
 
    $W = $W_WINDOW - $W_BUTTON
@@ -55,12 +69,12 @@ Func start_selection($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($selection)
-	  EventWhenCoverLabel($mul_3, $cursor, 0x777777, 0x888888, 0, 0, $W, $H, 22, False, $fOverMul3)
-	  EventWhenCoverLabel($mul_2, $cursor, 0x999999, 0xAAAAAA, 0, $H, $W, $H, 22, False, $fOverMul2)
-	  EventWhenCoverLabel($div_3, $cursor, 0xBBBBBB, 0xCCCCCC, 0, 2 * $H, $W, $H, 22, False, $fOverDiv3)
-	  EventWhenCoverLabel($back, $cursor, 0x222222, 0x333333, $W, 0, $W_BUTTON, $H_WINDOW, 22, False, $fOverBack)
+	  EventOnCover($mul_3, $cursor, 0x777777, 0x888888, 0, 0, $W, $H, 22, False, $fOverMul3)
+	  EventOnCover($mul_2, $cursor, 0x999999, 0xAAAAAA, 0, $H, $W, $H, 22, False, $fOverMul2)
+	  EventOnCover($div_3, $cursor, 0xBBBBBB, 0xCCCCCC, 0, 2 * $H, $W, $H, 22, False, $fOverDiv3)
+	  EventOnCover($back, $cursor, 0x222222, 0x333333, $W, 0, $W_BUTTON, $H_WINDOW, 22, False, $fOverBack)
 
-	  $click = EventWhenClickLabel($cursor)
+	  $click = ControlOnClick($cursor)
 
 	  Switch $click
 		 Case $back
@@ -82,12 +96,12 @@ Func start_selection($data, $nbit)
 			$zeroError = 2
 			$overflowError = 4
 
-			$error = extractData($data, $EXTRACT_CHECK)
+			$error = extractLog($data, $EXTRACT_ERROR)
 
 			If BitAND($error, $zeroError) Then
-			   DisplayError("ERROR", "Zero Division Error")
+			   DisplayNotification("ERROR", "Zero Division Error")
 			ElseIf BitAND($error, $overflowError) Then
-			   DisplayError("ERROR", "Get Risk of OverFlow")
+			   DisplayNotification("ERROR", "Get Risk of OverFlow")
 			Else
 			   GUIDelete($selection)
 			   $flag = 4
@@ -99,7 +113,7 @@ Func start_selection($data, $nbit)
    WEnd
 
    If $flag = 1 Then
-	  start_inputForm()
+	  start_entry()
    ElseIf $flag = 2 Then
 	  start_mul3($data, $nbit)
    ElseIf $flag = 3 Then

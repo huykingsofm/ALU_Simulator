@@ -102,7 +102,10 @@ def any2dec(a, base):
     # change base
     pow = 1
     res = 0
+    max = maxValue(64)
     for i in range(n - 1, -1, -1):
+        if res + int(num[i]) * pow > max:
+            return -1
         res += int(num[i]) * pow
         pow = pow * base
     
@@ -142,8 +145,8 @@ def dec2bin(d, nbit = 24, sep = 6):
 
     # separate string into many clusters to make more readable
     if sep > 0 :
-        for i in range(len(b) - sep, -1, -sep):
-            b = b[:i] + " " + b[i:]
+        for i in range(len(b) - sep, 0, -sep):
+            b[i:i] = " "
 
     return b
 
@@ -233,7 +236,7 @@ def removeRedundancyOfString(s):
     s = re.sub(' +', ' ', s)
     return s
 
-def convertLog(log):    
+def convertLog(log, nbit):    
     """
     Purpose: Convert log returned by ALU.run() to string
 
@@ -251,7 +254,8 @@ def convertLog(log):
 
     log_s = ""
     for k in range(nReg):
-        log_s += str(log[0][0][k])
+        p = 2 if k != 0 else 1
+        log_s += dec2bin(log[0][0][k], nbit = nbit * p, sep=nbit * p)
         if k != nReg - 1:
             log_s += " "
     # store remain steps
@@ -263,7 +267,8 @@ def convertLog(log):
         for j in range(nReg):
             log_s += ","
             for k in range(nReg):
-                log_s += str(log[i][j][k])
+                p = 2 if k != 0 else 1
+                log_s += dec2bin(log[i][j][k], nbit=nbit * p, sep=nbit * p)
                 if k != nReg - 1:
                     log_s += " "
 

@@ -10,6 +10,8 @@
 ; Modified Date:	Dec 10 2018
 ; Purpose: 	Provide a procedure which run a Laucher to start a series of Metro-UIs of ALU Simulator
 ;			Morever, it also connect to API to run some special functions
+; PUPBLIC FUNCTION:
+;	start_laucher()
 ;=============================================================================================================
 
 ; Include some nessessary libraries
@@ -17,11 +19,19 @@
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
-#include "InputForm.au3"
-#include "ALU_API.au3"
+#include "entry.au3"
+#include "ALU.au3"
 
-;====================================================
+;============================================================================
+; Func start_laucher()
+; Purpose: Provide a connection to ALU
 ;
+; Parameters:
+;	+ no parameter
+; Return:
+;	+ no return
+;=============================================================================
+
 Func start_laucher()
    #Region LOCAL CONSTANT
    $PY = 250
@@ -60,16 +70,21 @@ Func start_laucher()
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
 
+   ; Try to connect with ALU
    $flag = 0
 
    If $Connection = -1 Then
 	  $Connection = ALUConnect()
    EndIf
 
+   ; If connect successful, show control to go to entry of ALU
    If $Connection <> -1 Then
 	  GUICtrlSetState($wait, $GUI_HIDE)
 	  GUICtrlSetState($lauch, $GUI_SHOW)
 	  GUICtrlSetState($close, $GUI_SHOW)
+
+
+   ; If fail connection, show "Connection error" and exit then
    Else
 	  GUICtrlSetData($wait, "Connection Error")
 	  Sleep(3000)
@@ -83,12 +98,12 @@ Func start_laucher()
 	  $cursor = GUIGetCursorInfo($laucher)
 
 	  ; Change status of label if cursor covers it
-	  EventWhenCoverLabel($lauch, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_LAUCH, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverLauch)
-	  EventWhenCoverLabel($close, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_CLOSE, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverClose)
+	  EventOnCover($lauch, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_LAUCH, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverLauch)
+	  EventOnCover($close, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_CLOSE, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverClose)
 
 
 	  ; Get and solve click event
-	  $click = EventWhenClickLabel($cursor)
+	  $click = ControlOnClick($cursor)
 	  Switch $click
 		 Case $lauch
 			GUIDelete($laucher)
@@ -103,6 +118,6 @@ Func start_laucher()
    WEnd
 
    If $flag = 1 Then
-	  start_inputForm()
+	  start_entry()
    EndIf
 EndFunc

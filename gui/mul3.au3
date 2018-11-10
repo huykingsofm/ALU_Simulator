@@ -9,6 +9,8 @@
 ; Language:			AutoIT
 ; Modified Date:	Dec 10 2018
 ; Purpose:			Lauch multiple with 3 registers in detail
+; PUBPLIC FUNCTION:
+;	start_mul3(data, nbit)
 ;=============================================================================================================
 ;
 
@@ -16,11 +18,26 @@
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
-#include "gui_utilities.au3"
+#include "utilities.au3"
 
+;============================================================================
+; Func start_mul3(data, nbit)
+; Purpose: Create a table contains a log of 3-register-multiple
+;
+; Parameters:
+;	+ data:			value is returned by ALUCall("ALU")
+;	+ nbit:			number of bits will be display on table
+; Return:
+;	+ no return
+;=============================================================================
 Func start_mul3($data, $nbit)
-   $d = extractData($data, $EXTRACT_MUL3)
+   ; Set some neccessary value
+   $d = extractLog($data, $EXTRACT_MUL3)
+   $sep = Int($nbit / 4)
+   $sep = ($sep >= 3) ? $sep : $nbit
 
+
+   #Region ### CONSTANTS
    $COLOR_LABEL = 0x444444
 
    Local $COLOR_ITEM[2]
@@ -33,21 +50,22 @@ Func start_mul3($data, $nbit)
    $H = 40
    $W_ITER = 60
    $W_STEP = 170
-   $W_MULCAND = 200
+   $W_MULCAND = 210
    $W_PROMULER = 400
-   $PX = 10
+   $PX = 5
    $PY = 220
    $STYLE = BitOR($SS_CENTER,$SS_CENTERIMAGE, $WS_BORDER)
 
    $C_UPDOWN = 0x00AAEE
    $C_UPDOWN_HOVER = 0x00BBFF
 
-   #Region ### START Koda GUI section ### Form=
-   $mul3 = GUICreate("Form1", 1250, 660, 45, 35, $WS_POPUP, $WS_EX_COMPOSITED)
+   #EndRegion CONSTANT
+   #Region ### Create GUI
+   $mul3 = GUICreate("mul3", 1250, 660, 45, 35, $WS_POPUP, $WS_EX_COMPOSITED)
    GUISetBkColor(0x333333)
    GUISetFont(9, 300, 0, "Consolas")
 
-   ; Title and Button
+   #Region ### Create Title and Button
    $Title = GUICtrlCreateLabel("ALU SIMULATOR FOR MULTIPLE WITH 3 REGISTERS", 0, 0, 1250, 68, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Bahnschrift Condensed")
    GUICtrlSetColor(-1, 0xFFFFFF)
@@ -64,8 +82,8 @@ Func start_mul3($data, $nbit)
    $back = GUICtrlCreateLabel("BACK", 915, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $COLOR_BUTTON)
-
-   ; Create Label
+   #EndRegion Create Tiltle and button
+   #Region ### Create Label of table
    Local $Label[5]
 
    $x = $PX
@@ -84,7 +102,8 @@ Func start_mul3($data, $nbit)
 	  GUICtrlSetBkColor($Label[$i], $COLOR_LABEL)
 	  GUICtrlSetColor($Label[$i], 0xFFFFFF)
    Next
-
+   #EndRegion
+   #Region ### Create and Load Init Step
    Local $init[5]
    $x = $PX
    $y = $PY - 40
@@ -103,6 +122,14 @@ Func start_mul3($data, $nbit)
 	  GUICtrlSetColor($init[$i], 0x000000)
    Next
 
+   ; Load data to initilization label
+   $t = StringSplit($d[1], " ")
+   GUICtrlSetData($init[2], seperate($t[1], $sep))
+   GUICtrlSetData($init[3], seperate($t[2], $sep))
+   GUICtrlSetData($init[4], seperate($t[3], $sep))
+
+   #EndRegion Load init step
+   #Region ### Create table
    Local $iter[3]
    Local $step[3][3]
    Local $mulcand[3][3]
@@ -134,14 +161,7 @@ Func start_mul3($data, $nbit)
 	  GUICtrlSetData($step[$i][1], "2. sll Multiplicand")
 	  GUICtrlSetData($step[$i][2], "3. slr Multiplier")
    Next
-
-   ; Load data to initilization label
-   $t = StringSplit($d[1], " ")
-   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
-   ;$t1 = Number($t[2])
-   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
-   ;$t1 = Number($t[3])
-   GUICtrlSetData($init[4], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
+   #EndRegion Create table
 
    ; First load
    $begin = 1
@@ -156,11 +176,11 @@ Func start_mul3($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($mul3)
-	  EventWhenCoverLabel($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 70, 100, 60, 22, True, $fOverUp)
-	  EventWhenCoverLabel($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 590, 100, 60, 22, True, $fOverDown)
-	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 915, 590, 100, 60, 22, True, $fOverBack)
+	  EventOnCover($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 70, 100, 60, 22, True, $fOverUp)
+	  EventOnCover($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 590, 100, 60, 22, True, $fOverDown)
+	  EventOnCover($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 915, 590, 100, 60, 22, True, $fOverBack)
 
-	  $click = EventWhenClickLabel($cursor)
+	  $click = ControlOnClick($cursor)
 
 	  Switch $click
 		 Case $back
@@ -187,7 +207,21 @@ Func start_mul3($data, $nbit)
    start_selection($data, $nbit)
 EndFunc
 
+;============================================================================
+; Func load_mul3(d, begin, nbit, iter, step, mulcand, muler, prod)
+; Purpose: Fill in table with step begin at <begin>
+;
+; Parameters:
+;	+ d: 		data returned by ALUCall("ALU")
+;	+ begin: 	begining step
+;	+ nbit:		number of bits will be displayed
+;	+ ...:		handler of controls on GUI
+; Return:
+;	+ no return
+;=============================================================================
 Func load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
+   $sep = Int($nbit / 4)
+   $sep = ($sep >= 3) ? $sep : $nbit
 
    $count = ($begin - 1) * 4 + 2
    For $i = 0 To getmin(2, $nbit - 1)
@@ -204,9 +238,9 @@ Func load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 	  For $j = 0 To 2
 		 $t = StringSplit($d[$count], " ")
 
-		 GUICtrlSetData($mulcand[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
-		 GUICtrlSetData($muler[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit *2)))
-		 GUICtrlSetData($prod[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
+		 GUICtrlSetData($mulcand[$i][$j], seperate($t[1], $sep))
+		 GUICtrlSetData($muler[$i][$j], seperate($t[2], $sep))
+		 GUICtrlSetData($prod[$i][$j], seperate($t[3], $sep))
 		 $count += 1
 	  Next
    Next

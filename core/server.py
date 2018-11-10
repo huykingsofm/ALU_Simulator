@@ -42,18 +42,18 @@ def importALU(data):
     # solve m3
     m3_s = ""
     if (error & ALU.ERROR_UNDENTIFIED) != ALU.ERROR_UNDENTIFIED:
-        m3_s = convertLog(m3)
+        m3_s = convertLog(m3, nbit)
         
     # solve m2
     m2_s = ""
     if (error & ALU.ERROR_UNDENTIFIED) != ALU.ERROR_UNDENTIFIED:
-        m2_s = convertLog(m2)
+        m2_s = convertLog(m2, nbit)
 
     # solve d3
     d3_s = ""
     if error == 0:
-        d3_s = convertLog(d3)
-    
+        d3_s = convertLog(d3, nbit)
+
     return str(error) + "|" + m3_s + "|" + m2_s + "|" + d3_s
 
 def call(data):

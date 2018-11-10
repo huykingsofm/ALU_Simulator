@@ -40,7 +40,7 @@ class ALU:
     ERROR_NEGATIVE = 8
 
     def __init__(self, a, b, base = 10, nbit = 24):
-        # Set nesscessary value
+        # Set neccessary value
         self.__nbit = nbit              # The number of bit in this processor
         self.error = 0                  # If there is no-error in processing, error = 0
                                         # If there is a zero division error, error = 2

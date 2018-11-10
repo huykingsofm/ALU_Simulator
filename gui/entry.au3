@@ -5,10 +5,12 @@
 ;	Edu Email: 		17520074@gm.uit.edu.vn
 ;	Github: 		https://github.com/huykingsofm/ALU_Simulator.git
 ;
-; File Name: 		InputForm.au3
+; File Name: 		entry.au3
 ; Language:			AutoIT
-; Modified Date:	Dec 10 2018
+; Modified Date:	Dec 11 2018
 ; Purpose:			Create a form to input data into ALU
+; PUBLIC FUNCTION:
+;	start_entry()
 ;=============================================================================================================
 ;
 #include-once
@@ -17,20 +19,28 @@
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
-#include "error_msg.au3"
+#include "DisplayNotification.au3"
 #include "selection.au3"
 
-Func start_inputForm()
+;============================================================================
+; Func start_entry()
+; Purpose: Create a GUI which provide a input form
+;
+; Parameters:
+;	+ no parameter
+; Return:
+;	+ no return
+;=============================================================================
+Func start_entry()
    #Region ### CONSTANT
    $PY = 300
 
    $PX_IMPORT = 100
    $PX_BACK = 360
    #EndRegion
-
-   #Region ### START Koda GUI section ### Form=e:\save code\python\alu project\img\inputdata.kxf
+   #Region ### Create GUI
    ; Create a new GUI
-   $InputForm = GUICreate("ALU", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
+   $entry = GUICreate("ALU", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
    GUISetBkColor($C_WINDOW)
 
    ; Create title in head GUI
@@ -67,8 +77,7 @@ Func start_inputForm()
    GUICtrlSetFont(-1, 13, 800, Default, "Sogoe UI Bold", 5)
    GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "Second number...")
    #EndRegion
-
-   ; Create selection of base-n Number
+   #Region ### Create selection of base of number and number of bits
    ; n can be bin(base-2), oct(base-8), dec(base-10), hex(base-16), or other in [1, 16]
    $labelBin = GUICtrlCreateLabel("BIN", 50, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
@@ -99,7 +108,7 @@ Func start_inputForm()
    GUICtrlCreateLabel("Bits", 485, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
-
+   #EndRegion
 
    ; Create 2 buttons
    ; "IMPORT" to import 2 numbers into ALU
@@ -120,18 +129,18 @@ Func start_inputForm()
    $fOverImport = False
    $flag = 0
    While 1
-	  $cursor = GUIGetCursorInfo($InputForm)
+	  $cursor = GUIGetCursorInfo($entry)
 	  ; Change label status when the cursor covers it
-	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_BACK, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverBack)
-	  EventWhenCoverLabel($import, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_IMPORT, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverImport)
+	  EventOnCover($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_BACK, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverBack)
+	  EventOnCover($import, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_IMPORT, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverImport)
 
 	  ; Solve click event
-	  $event = EventWhenClickLabel($cursor)
+	  $event = ControlOnClick($cursor)
 
 	  If $event <> -1 Then
 		 Switch $event
 			Case $back
-			   GUIDelete($InputForm)
+			   GUIDelete($entry)
 			   Sleep($SOFT_TIME)
 			   $flag = 1
 			   ExitLoop
@@ -141,6 +150,7 @@ Func start_inputForm()
 			   $base = ""
 			   $nbit = ""
 
+			   ; Check base, number of bits and then try importing it to ALU
 			   If GUICtrlRead($bin) = 1 Then
 				  $base = "2"
 			   ElseIf GUICtrlRead($oct) = 1 Then
@@ -157,33 +167,35 @@ Func start_inputForm()
 				  $nbit = Number(GUICtrlRead($nbitInput))
 			   EndIf
 
+
+			   ; In error case, display error
 			   If $a = "" Then
-				  DisplayError("ERROR", "Number should be fill in")
+				  DisplayNotification("ERROR", "Number should be fill in")
 			   ElseIf Not check($a) Then
-				  DisplayError("ERROR", "Input must be a number")
+				  DisplayNotification("ERROR", "Input must be a number")
 			   ElseIf $b = "" Then
-				  DisplayError("ERROR", "Number should be fill in")
+				  DisplayNotification("ERROR", "Number should be fill in")
 			   ElseIf Not check($b) Then
-				  DisplayError("ERROR", "Input must be a number")
+				  DisplayNotification("ERROR", "Input must be a number")
 			   ElseIf $base = "" Then
-				  DisplayError("ERROR", "You must choose a base")
+				  DisplayNotification("ERROR", "You must choose a base")
 			   ElseIf $nbit	= "" Then
-				  DisplayError("ERROR", "You must choose number of bit")
+				  DisplayNotification("ERROR", "You must choose number of bit")
 			   Else
-				  $data = CallFunc($Connection, "ALU", $a & "," & $b & "," & $base & "," & $nbit)
+				  $data = ALUCall($Connection, "ALU", $a & "," & $b & "," & $base & "," & $nbit)
 				  If $data = "error" or $data = "" Then
-					 DisplayError("ERROR", "Connection Error, Try again")
+					 DisplayNotification("ERROR", "Connection Error, Try again")
 					 ContinueLoop
 				  EndIf
 
-				  $error = extractData($data, $EXTRACT_CHECK)
+				  $error = extractLog($data, $EXTRACT_ERROR)
 				  Select
 					 Case BitAND($error, 1) <> 0
-						DisplayError("ERROR", "Undentified Error Occur")
+						DisplayNotification("ERROR", "Undentified Error Occur")
 					 Case BitAND($error, 8) <> 0
-						DisplayError("ERROR", "Positive number is not permitted")
+						DisplayNotification("ERROR", "Positive number is not permitted")
 					 Case Else
-						GUIDelete($InputForm)
+						GUIDelete($entry)
 						Sleep($SOFT_TIME)
 						$flag = 2
 						ExitLoop
@@ -207,6 +219,18 @@ Func start_inputForm()
 	  start_selection($data, $nbit)
    EndIf
 EndFunc
+
+
+;============================================================================
+; Func check(a)
+; Purpose: check whether a is all numbers and alphabets or not
+;
+; Parameters:
+;	+ data:			value need to be checked
+; Return:
+;	+ If there are only numbers and alphabets, return True
+;	+ Otherwise, return False
+;=============================================================================
 
 Func check($a)
    $b = StringSplit($a, "")
