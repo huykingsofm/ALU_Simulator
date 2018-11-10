@@ -22,7 +22,7 @@
 #include "div3.au3"
 
 #Region ### START Koda GUI section ### Form=
-Func start_selection($data)
+Func start_selection($data, $nbit)
    $selection = GUICreate("Form2", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
    GUISetBkColor(0x222222)
 
@@ -101,10 +101,10 @@ Func start_selection($data)
    If $flag = 1 Then
 	  start_inputForm()
    ElseIf $flag = 2 Then
-	  start_mul3($data)
+	  start_mul3($data, $nbit)
    ElseIf $flag = 3 Then
-	  start_mul2($data)
+	  start_mul2($data, $nbit)
    ElseIf $flag = 4 Then
-	  start_div3($data)
+	  start_div3($data, $nbit)
    EndIf
 EndFunc

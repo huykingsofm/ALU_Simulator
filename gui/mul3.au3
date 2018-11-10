@@ -18,7 +18,7 @@
 #include <WindowsConstants.au3>
 #include "gui_utilities.au3"
 
-Func start_mul3($data)
+Func start_mul3($data, $nbit)
    $d = extractData($data, $EXTRACT_MUL3)
 
    $COLOR_LABEL = 0x444444
@@ -137,15 +137,15 @@ Func start_mul3($data)
 
    ; Load data to initilization label
    $t = StringSplit($d[1], " ")
-   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & 24))
+   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
    ;$t1 = Number($t[2])
-   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & 48))
+   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
    ;$t1 = Number($t[3])
-   GUICtrlSetData($init[4], CallFunc($Connection, "dec2bin", $t[3] & "," & 48))
+   GUICtrlSetData($init[4], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
 
    ; First load
    $begin = 1
-   load_mul3($d, $begin, $iter, $step, $mulcand, $muler, $prod)
+   load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
@@ -171,28 +171,28 @@ Func start_mul3($data)
 			$begint = $begin
 			$begin = getmax($begin - 2, 1)
 			If ($begin <> $begint) Then
-			   load_mul3($d, $begin, $iter, $step, $mulcand, $muler, $prod)
+			   load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 			   Sleep($SOFT_TIME)
 			EndIf
 		 Case $down
 			$begint = $begin
-			$begin = getmin($begin + 2, 22)
+			$begin = getmin($begin + 2, $nbit - 2)
 			If $begin <> $begint Then
-			   load_mul3($d, $begin, $iter, $step, $mulcand, $muler, $prod)
+			   load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 			   Sleep($SOFT_TIME)
 			EndIf
 	  EndSwitch
    WEnd
 
-   start_selection($data)
+   start_selection($data, $nbit)
 EndFunc
 
-Func load_mul3($d, $begin, $iter, $step, $mulcand, $muler, $prod)
+Func load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 
    $count = ($begin - 1) * 4 + 2
    For $i = 0 To 2
 	  $check = Number($d[$count])
-	   GUICtrlSetData($iter[$i], $begin + $i)
+	  GUICtrlSetData($iter[$i], $begin + $i)
 
 	  ; check change of product
 	  If ($check == 1)Then;yes
@@ -204,9 +204,9 @@ Func load_mul3($d, $begin, $iter, $step, $mulcand, $muler, $prod)
 	  For $j = 0 To 2
 		 $t = StringSplit($d[$count], " ")
 
-		 GUICtrlSetData($mulcand[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & 24))
-		 GUICtrlSetData($muler[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & 48))
-		 GUICtrlSetData($prod[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & 48))
+		 GUICtrlSetData($mulcand[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
+		 GUICtrlSetData($muler[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit *2)))
+		 GUICtrlSetData($prod[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
 		 $count += 1
 	  Next
    Next

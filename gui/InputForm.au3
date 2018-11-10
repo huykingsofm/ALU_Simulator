@@ -57,12 +57,12 @@ Func start_inputForm()
    GUICtrlSetState($PicB, $GUI_DISABLE)
 
    ; Create input boxes
-   $InputA = GUICtrlCreateInput('', 170, 135, 280, 25, 0x0001, 0)
+   $InputA = GUICtrlCreateInput('', 170, 135, 280, 20, 0x0001, 0)
    GUICtrlSetBkColor(-1, 0xFFFFFF)
    GUICtrlSetFont(-1, 13, 800, Default, "Sogoe UI Bold", 5)
    GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "First number...")
 
-   $InputB = GUICtrlCreateInput('', 170, 185, 280, 25, 0x0001, 0)
+   $InputB = GUICtrlCreateInput('', 170, 185, 280, 20, 0x0001, 0)
    GUICtrlSetBkColor(-1, 0xFFFFFF)
    GUICtrlSetFont(-1, 13, 800, Default, "Sogoe UI Bold", 5)
    GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "Second number...")
@@ -90,13 +90,12 @@ Func start_inputForm()
    GUICtrlSetColor(-1, 0xFFFFFF)
    $hex = GUICtrlCreateRadio("", 385, 249, 20, 20)
 
-   $otherInput = GUICtrlCreateInput(Null, 450, 250, 50, 0, $ES_NUMBER)
+   $defaultNbit = 24
+   $nbitInput = GUICtrlCreateInput("", 450, 248, 50, 0, $ES_NUMBER)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0x000000)
    GUICtrlSetFont(-1, 10, 800, Default, "Arial", 5)
-   GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "other")
-   $other = GUICtrlCreateRadio(Null, 510, 249, 20, 20)
-
+   GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "24")
 
    ; Create 2 buttons
    ; "IMPORT" to import 2 numbers into ALU
@@ -136,6 +135,7 @@ Func start_inputForm()
 			   $a = GUICtrlRead($inputA)
 			   $b = GUICtrlRead($inputB)
 			   $base = ""
+			   $nbit = ""
 
 			   If GUICtrlRead($bin) = 1 Then
 				  $base = "2"
@@ -145,8 +145,12 @@ Func start_inputForm()
 				  $base = "10"
 			   ElseIf GUICtrlRead($hex) = 1 Then
 				  $base = "16"
-			   ElseIf GUICtrlRead($other) = 1 Then
-				  $base = GUICtrlRead($otherInput)
+			   EndIf
+
+			   If (GUICtrlRead($nbitInput)) == "" Then
+				  $nbit = $defaultNbit
+			   Else
+				  $nbit = Number(GUICtrlRead($nbitInput))
 			   EndIf
 
 			   If $a = "" Then
@@ -158,11 +162,12 @@ Func start_inputForm()
 			   ElseIf Not check($b) Then
 				  DisplayError("ERROR", "Input must be a number")
 			   ElseIf $base = "" Then
-				  DisplayError("ERROR", "You must chose a base")
+				  DisplayError("ERROR", "You must choose a base")
+			   ElseIf $nbit	= "" Then
+				  DisplayError("ERROR", "You must choose number of bit")
 			   Else
-				  $data = CallFunc($Connection, "ALU", $a & "," & $b & "," &$base)
+				  $data = CallFunc($Connection, "ALU", $a & "," & $b & "," & $base & "," & $nbit)
 				  If $data = "error" or $data = "" Then
-					 ConsoleWrite($data)
 					 DisplayError("ERROR", "Connection Error, Try again")
 					 ContinueLoop
 				  EndIf
@@ -185,13 +190,16 @@ Func start_inputForm()
 				  $event = $Title
 			   EndIf
 			   ControlFocus("ALU", "", $event)
+			   If $event = $bin or $event = $oct or $event = $dec or $event = $hex Then
+				  ControlFocus("ALU", "", $event)
+			   EndIf
 		 EndSwitch
 	  EndIf
    WEnd
    If $flag = 1 Then
 	  start_laucher()
    ElseIf $flag = 2 Then
-	  start_selection($data)
+	  start_selection($data, $nbit)
    EndIf
 EndFunc
 
@@ -206,3 +214,5 @@ Func check($a)
 
    Return True
 EndFunc
+
+start_inputForm()

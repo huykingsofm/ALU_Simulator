@@ -17,14 +17,14 @@
 #include <WindowsConstants.au3>
 #include "gui_utilities.au3"
 
-Func start_div3($data)
+Func start_div3($data, $nbit)
    $d = extractData($data, $EXTRACT_DIV3)
 
    $COLOR_LABEL = 0x444444
 
    Local $COLOR_ITEM[2]
-   $COLOR_ITEM[0] = 0xB4B4B4
-   $COLOR_ITEM[1] = 0xD6D6D6
+   $COLOR_ITEM[0] = 0xFFFFFF
+   $COLOR_ITEM[1] = 0xCCCCCC
 
    $N = 3
    $H = 40
@@ -139,13 +139,13 @@ Func start_div3($data)
    ; Load data to initilization label
    $t = StringSplit($d[1], " ")
 
-   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & 24))
-   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & 48))
-   GUICtrlSetData($init[4], CallFunc($Connection, "dec2bin", $t[3] & "," & 48))
+   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
+   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
+   GUICtrlSetData($init[4], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
 
    ; First load
    $begin = 1
-   load_div3($d, $begin, $iter, $step, $quotient, $divisor, $remainder)
+   load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
@@ -171,23 +171,23 @@ Func start_div3($data)
 			$begint = $begin
 			$begin = getmax($begin - 2, 1)
 			If ($begin <> $begint) Then
-			   load_div3($d, $begin, $iter, $step, $quotient, $divisor, $remainder)
+			   load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 			   Sleep($SOFT_TIME)
 			EndIf
 		 Case $down
 			$begint = $begin
-			$begin = getmin($begin + 2, 23)
+			$begin = getmin($begin + 2, $nbit - 1)
 			If $begin <> $begint Then
-			   load_div3($d, $begin, $iter, $step, $quotient, $divisor, $remainder)
+			   load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 			   Sleep($SOFT_TIME)
 			EndIf
 	  EndSwitch
    WEnd
 
-   start_selection($data)
+   start_selection($data, $nbit)
 EndFunc
 
-Func load_div3($d, $begin, $iter, $step, $quotient, $divisor, $remainder)
+Func load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 
    $count = ($begin - 1) * 4 + 2
    For $i = 0 To 2
@@ -204,9 +204,9 @@ Func load_div3($d, $begin, $iter, $step, $quotient, $divisor, $remainder)
 	  For $j = 0 To 2
 		 $t = StringSplit($d[$count], " ")
 
-		 GUICtrlSetData($quotient[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & 24))
-		 GUICtrlSetData($divisor[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & 48))
-		 GUICtrlSetData($remainder[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & 48))
+		 GUICtrlSetData($quotient[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
+		 GUICtrlSetData($divisor[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
+		 GUICtrlSetData($remainder[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
 
 		 $count += 1
 	  Next

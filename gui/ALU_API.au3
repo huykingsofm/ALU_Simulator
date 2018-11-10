@@ -14,13 +14,13 @@
 ;
 ;Functions consist of:
 ;
-;Func: ALU(a, b, base)
+;Func: ALU(a, b, base, nbit)
 ;	- Perform caculation of multiple and division with a ALU, then return a log(or record) of processes
 ;	- Parameters:
 ;		+ every parameters are string
 ;		+ <a>, <b> is entry numbers of ALU
 ;		+ <base> is base of number, 2 <= <base> <= 16
-;
+;		+ <nbit> is number of bit will be performed
 ;
 ;	- Return the value having a form like "<error>|<mul_3>|<mul_2>|<div_2>"
 ;
@@ -42,7 +42,7 @@
 ;				  If error in <2 or 4>, div_3 = ""
 ;
 ;	Example:
-;		Func: ALU("2", "3", "10")
+;		Func: ALU("2", "3", "10", "3")
 ;		Return value: "<0>|<2 3 0>, <0, 2 3 0, 1 3 0, 1 6 0>, <1, 1 6 6, 0 6 6, 0 12 6>,<..>|<mul_2>|<div_3>"
 ;		Explain :
 ;			+ <0> is error value, it said that there is no error in this case
@@ -54,6 +54,9 @@
 ;			+ <..> is remain step in multiple with 3 registers
 ;			+ <mul_2> and <div_2> are analysised respectively
 ;
+;		Func: ALU("2", "3", "10", "3")
+;		Return value: "<1>|||"
+;		Explain: 3 bit can not perform 2 * 3 in decimal
 ;
 ;Func: dec2bin(dec, n)
 ;	- Conver decimal to <n>-bit binary in string form
@@ -164,7 +167,7 @@ Func CallFunc($Connection, $func, $arg)
    Do
 	  TCPSend($Connection, $call)
 	  $revData1 = TCPRecv($Connection, 1024 * 5)
-	  Sleep(10)
+	  Sleep(2)
 	  TCPSend($Connection, $call)
 	  $revData2 = TCPRecv($Connection, 1024 * 5)
 	  $limit_time -= 1

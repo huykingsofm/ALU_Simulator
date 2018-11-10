@@ -17,14 +17,14 @@
 #include <WindowsConstants.au3>
 #include "gui_utilities.au3"
 
-Func start_mul2($data)
+Func start_mul2($data, $nbit)
    $d = extractData($data, $EXTRACT_MUL2)
 
    $COLOR_LABEL = 0x444444
 
    Local $COLOR_ITEM[2]
-   $COLOR_ITEM[0] = 0xB4B4B4
-   $COLOR_ITEM[1] = 0xD6D6D6
+   $COLOR_ITEM[0] = 0xFFFFFF
+   $COLOR_ITEM[1] = 0xCCCCCC
 
    $H = 40
    $W_ITER = 60
@@ -124,12 +124,12 @@ Func start_mul2($data)
    ; Load data to initilization label
    $t = StringSplit($d[1], " ")
 
-   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & 24))
-   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & 48))
+   GUICtrlSetData($init[2], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
+   GUICtrlSetData($init[3], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
 
    ; First load
    $begin = 1
-   load_mul2($d, $begin, $iter, $step, $mulcand, $prodmuler)
+   load_mul2($d, $begin, $nbit, $iter, $step, $mulcand, $prodmuler)
 
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
@@ -155,23 +155,23 @@ Func start_mul2($data)
 			$begint = $begin
 			$begin = getmax($begin - 3, 1)
 			If ($begin <> $begint) Then
-			   load_mul2($d, $begin, $iter, $step, $mulcand, $prodmuler)
+			   load_mul2($d, $begin, $nbit, $iter, $step, $mulcand, $prodmuler)
 			   Sleep($SOFT_TIME)
 			EndIf
 		 Case $down
 			$begint = $begin
-			$begin = getmin($begin + 3, 21)
+			$begin = getmin($begin + 3, $nbit - 3)
 			If $begin <> $begint Then
-			   load_mul2($d, $begin, $iter, $step, $mulcand, $prodmuler)
+			   load_mul2($d, $begin, $nbit, $iter, $step, $mulcand, $prodmuler)
 			   Sleep($SOFT_TIME)
 			EndIf
 	  EndSwitch
    WEnd
 
-   start_selection($data)
+   start_selection($data, $nbit)
 EndFunc
 
-Func load_mul2($d, $begin, $iter, $step, $mulcand, $prodmuler)
+Func load_mul2($d, $begin, $nbit, $iter, $step, $mulcand, $prodmuler)
 
    $count = ($begin - 1) * 3 + 2
    For $i = 0 To 3
@@ -188,8 +188,8 @@ Func load_mul2($d, $begin, $iter, $step, $mulcand, $prodmuler)
 	  For $j = 0 To 1
 		 $t = StringSplit($d[$count], " ")
 
-		 GUICtrlSetData($mulcand[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & 24))
-		 GUICtrlSetData($prodmuler[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & 48))
+		 GUICtrlSetData($mulcand[$i][$j], CallFunc($Connection, "dec2bin", $t[1] & "," & $nbit))
+		 GUICtrlSetData($prodmuler[$i][$j], CallFunc($Connection, "dec2bin", $t[2] & "," & ($nbit * 2)))
 
 		 $count += 1
 	  Next

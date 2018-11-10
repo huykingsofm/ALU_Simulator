@@ -33,8 +33,9 @@ def importALU(data):
     a = data[0]
     b = data[1]
     base = int(data[2])
+    nbit = int(data[3])
 
-    processor = ALU(a, b, base)
+    processor = ALU(a, b, base, nbit)
     error = processor.error
     m3, m2, d3 = processor.run()
 
@@ -74,7 +75,7 @@ def call(data):
     
     returnValue = ""
 
-    if (func == "ALU" and len(arg) == 3):
+    if (func == "ALU" and len(arg) == 4):
         returnValue = importALU(arg)
         
     elif (func == "DEC2BIN" and len(arg) == 2):
