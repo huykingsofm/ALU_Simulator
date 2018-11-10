@@ -91,11 +91,15 @@ Func start_inputForm()
    $hex = GUICtrlCreateRadio("", 385, 249, 20, 20)
 
    $defaultNbit = 24
-   $nbitInput = GUICtrlCreateInput("", 450, 248, 50, 0, $ES_NUMBER)
+   $nbitInput = GUICtrlCreateInput("", 450, 248, 30, 0, BitOr($ES_NUMBER, $SS_RIGHT))
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0x000000)
    GUICtrlSetFont(-1, 10, 800, Default, "Arial", 5)
    GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "24")
+   GUICtrlCreateLabel("Bits", 485, 250)
+   GUICtrlSetFont(-1, 10, 800, 0, "Arial")
+   GUICtrlSetColor(-1, 0xFFFFFF)
+
 
    ; Create 2 buttons
    ; "IMPORT" to import 2 numbers into ALU
@@ -172,17 +176,18 @@ Func start_inputForm()
 					 ContinueLoop
 				  EndIf
 
-				  Switch extractData($data, $EXTRACT_CHECK)
-					 Case 1
+				  $error = extractData($data, $EXTRACT_CHECK)
+				  Select
+					 Case BitAND($error, 1) <> 0
 						DisplayError("ERROR", "Undentified Error Occur")
-					 Case 8
+					 Case BitAND($error, 8) <> 0
 						DisplayError("ERROR", "Positive number is not permitted")
 					 Case Else
 						GUIDelete($InputForm)
 						Sleep($SOFT_TIME)
 						$flag = 2
 						ExitLoop
-				  EndSwitch
+				  EndSelect
 			   EndIf
 
 			Case Else
@@ -214,5 +219,3 @@ Func check($a)
 
    Return True
 EndFunc
-
-start_inputForm()

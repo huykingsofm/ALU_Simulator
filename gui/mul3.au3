@@ -53,15 +53,15 @@ Func start_mul3($data, $nbit)
    GUICtrlSetColor(-1, 0xFFFFFF)
    GUICtrlSetBkColor(-1, 0x333333)
 
-   $up = GUICtrlCreateLabel("UP", 522, 70, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $up = GUICtrlCreateLabel("UP", 575, 70, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $C_UPDOWN)
 
-   $down = GUICtrlCreateLabel("DOWN", 522, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $down = GUICtrlCreateLabel("DOWN", 575, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $C_UPDOWN)
 
-   $back = GUICtrlCreateLabel("BACK", 850, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $back = GUICtrlCreateLabel("BACK", 915, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $COLOR_BUTTON)
 
@@ -156,9 +156,9 @@ Func start_mul3($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($mul3)
-	  EventWhenCoverLabel($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 522, 70, 100, 60, 22, True, $fOverUp)
-	  EventWhenCoverLabel($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 522, 590, 100, 60, 22, True, $fOverDown)
-	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 850, 590, 100, 60, 22, True, $fOverBack)
+	  EventWhenCoverLabel($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 70, 100, 60, 22, True, $fOverUp)
+	  EventWhenCoverLabel($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 590, 100, 60, 22, True, $fOverDown)
+	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 915, 590, 100, 60, 22, True, $fOverBack)
 
 	  $click = EventWhenClickLabel($cursor)
 
@@ -176,7 +176,7 @@ Func start_mul3($data, $nbit)
 			EndIf
 		 Case $down
 			$begint = $begin
-			$begin = getmin($begin + 2, $nbit - 2)
+			$begin = getmin($begin + 2, getmax($nbit - 2, 1))
 			If $begin <> $begint Then
 			   load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 			   Sleep($SOFT_TIME)
@@ -190,7 +190,7 @@ EndFunc
 Func load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 
    $count = ($begin - 1) * 4 + 2
-   For $i = 0 To 2
+   For $i = 0 To getmin(2, $nbit - 1)
 	  $check = Number($d[$count])
 	  GUICtrlSetData($iter[$i], $begin + $i)
 
@@ -209,5 +209,15 @@ Func load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 		 GUICtrlSetData($prod[$i][$j], CallFunc($Connection, "dec2bin", $t[3] & "," & ($nbit * 2)))
 		 $count += 1
 	  Next
+   Next
+
+   For $i = $nbit To 2
+	  GUICtrlSetData($step[$i][0], "")
+	  GUICtrlSetData($step[$i][1], "")
+	  GUICtrlSetData($step[$i][2], "")
+
+	  GUICtrlSetData($mulcand[$i][0], "")
+	  GUICtrlSetData($muler[$i][1], "")
+	  GUICtrlSetData($prod[$i][2], "")
    Next
 EndFunc

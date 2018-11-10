@@ -50,15 +50,15 @@ Func start_div3($data, $nbit)
    GUICtrlSetColor(-1, 0xFFFFFF)
    GUICtrlSetBkColor(-1, 0x333333)
 
-   $up = GUICtrlCreateLabel("UP", 502, 70, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $up = GUICtrlCreateLabel("UP", 555, 70, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $C_UPDOWN)
 
-   $down = GUICtrlCreateLabel("DOWN", 502, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $down = GUICtrlCreateLabel("DOWN", 555, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $C_UPDOWN)
 
-   $back = GUICtrlCreateLabel("BACK", 830, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $back = GUICtrlCreateLabel("BACK", 880, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $COLOR_BUTTON)
 
@@ -156,9 +156,9 @@ Func start_div3($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($div3)
-	  EventWhenCoverLabel($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 502, 70, 100, 60, 22, True, $fOverUp)
-	  EventWhenCoverLabel($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 502, 590, 100, 60, 22, True, $fOverDown)
-	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 830, 590, 100, 60, 22, True, $fOverBack)
+	  EventWhenCoverLabel($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 70, 100, 60, 22, True, $fOverUp)
+	  EventWhenCoverLabel($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 590, 100, 60, 22, True, $fOverDown)
+	  EventWhenCoverLabel($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 880, 590, 100, 60, 22, True, $fOverBack)
 
 	  $click = EventWhenClickLabel($cursor)
 
@@ -176,7 +176,7 @@ Func start_div3($data, $nbit)
 			EndIf
 		 Case $down
 			$begint = $begin
-			$begin = getmin($begin + 2, $nbit - 1)
+			$begin = getmin($begin + 2, getmax($nbit - 1, 1))
 			If $begin <> $begint Then
 			   load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 			   Sleep($SOFT_TIME)
@@ -190,7 +190,7 @@ EndFunc
 Func load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 
    $count = ($begin - 1) * 4 + 2
-   For $i = 0 To 2
+   For $i = 0 To getmin(2, $nbit)
 	  $check = Number($d[$count])
 	  GUICtrlSetData($iter[$i], $begin + $i)
 
@@ -210,5 +210,14 @@ Func load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 
 		 $count += 1
 	  Next
+   Next
+   For $i = $nbit + 1 To 2
+	  GUICtrlSetData($step[$i][0], "")
+	  GUICtrlSetData($step[$i][1], "")
+	  GUICtrlSetData($step[$i][2], "")
+
+	  GUICtrlSetData($quotient[$i][0], "")
+	  GUICtrlSetData($divisor[$i][1], "")
+	  GUICtrlSetData($remainder[$i][2], "")
    Next
 EndFunc

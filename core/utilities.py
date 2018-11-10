@@ -141,8 +141,9 @@ def dec2bin(d, nbit = 24, sep = 6):
     b = b.rjust(nbit, "0")
 
     # separate string into many clusters to make more readable
-    for i in range(len(b) - sep, -1, -sep):
-        b = b[:i] + " " + b[i:]
+    if sep > 0 :
+        for i in range(len(b) - sep, -1, -sep):
+            b = b[:i] + " " + b[i:]
 
     return b
 
@@ -244,11 +245,15 @@ def convertLog(log):
     """
 
     # store init step
-    log_s = removeRedundancyOfString(log[0][0])
-
+    
     nLog = log.shape[0]
     nReg = log.shape[1] - 1 
 
+    log_s = ""
+    for k in range(nReg):
+        log_s += str(log[0][0][k])
+        if k != nReg - 1:
+            log_s += " "
     # store remain steps
     for i in range(1, nLog):
         #store changeFlag
@@ -256,6 +261,10 @@ def convertLog(log):
 
         #store registers
         for j in range(nReg):
-            log_s +="," + removeRedundancyOfString(log[i][j])
+            log_s += ","
+            for k in range(nReg):
+                log_s += str(log[i][j][k])
+                if k != nReg - 1:
+                    log_s += " "
 
     return log_s

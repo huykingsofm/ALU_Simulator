@@ -1,3 +1,5 @@
 VERSION			DATE		DETAIL
 close alpha		Dec 10 2018	First Release
-1.0			Dec 10 2018	Add feature which can adjust number of bits display
+1.0			Dec 10 2018	Add feature which can adjust number of 
+					bits display
+1.1			Dec 11 2018	Adjust User Interface and fix some errors

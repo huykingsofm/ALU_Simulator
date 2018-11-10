@@ -1,0 +1,11 @@
+convert ALU Simulator.au3 to exe file
+convert server.py to exe file
+
+Create folder tree like below
+[In ..]
+ALU Simulator.exe
+server
+[In server]
+server.exe
+
+Then running ALU Simulator.exe
