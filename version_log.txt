@@ -1,0 +1,2 @@
+VERSION			DATE		DETAIL
+1. close alpha		Dec 10 2018	First Release
