@@ -9,9 +9,9 @@
 #
 # File name:        ALU.py
 # Language:         Python
-# Modified Date:    Dec 10 2018
-# PURPOSE:          provide a class to create detail process log in Arithmetic Logic Unit(ALU) Processor
-#                   include multiple and division operation.
+# Modified Date:    Dec 11 2018
+# PURPOSE:          provide a class to create detail process logs in Arithmetic Logic Unit(ALU) Processor
+#                   include multiple and division operations.
 # 
 # CONSTRUCTION
 # 
@@ -64,10 +64,6 @@ class ALU:
         self.__operator1 = any2dec(a, base)
         self.__operator2 = any2dec(b, base)
 
-        # check whether error happens in processing or not
-        if (self.__operator1 < 0 or self.__operator2 < 0):
-            self.error |= self.ERROR_UNDENTIFIED
-
         # check range of operator values
         max = maxValue(self.__nbit)       # maximum value of n-bit binary number
         if (out_of_range(self.__operator1, 0, max) or out_of_range(self.__operator2, 0, max)):
@@ -81,8 +77,9 @@ class ALU:
             self.error |= self.ERROR_OVERFLOW
 
     def __run_mul3(self):
-        # log
-        # shape[0] : number of steps(include init step)
+        # create a log to store all steps
+        # log shape:
+        # shape[0] : number of steps (include init step)
         # shape[1] : number of actions every step + 1 ChangeFlag
         # shape[2] = number of registers
         log = np.zeros((self.__nbit + 1, 4, 3), dtype = np.uint64)
@@ -100,12 +97,14 @@ class ALU:
         log[0][0] = [multiplier, multiplicand, product]
         
         # remain steps
+        # go through all step, except init step
         for i in range(1, self.__nbit + 1):
-            # If first bit of multipler is 1, 1a -> Product = Product + Mulcand
+            # If first bit of multipler is 1 
+            # 1a -> Product = Product + Mulcand
             # Else 1b -> no operation   
             if (get_bit(multiplier, 0) == 1):
-                log[i][3][0] = 1
-                product = product + multiplicand
+                log[i][3][0] = 1                    #turn on changeFlag
+                product = product + multiplicand   
             
             log[i, 0] = [multiplier, multiplicand, product]
 
@@ -120,7 +119,8 @@ class ALU:
         return log
 
     def __run_mul2(self):
-        # log
+        # create a log to store all steps
+        # log shape:
         # shape[0] : number of steps(include init step)
         # shape[1] : number of actions every step + 1 ChangeFlag
         # shape[2] = number of registers
@@ -138,12 +138,13 @@ class ALU:
         log[0][0] = [multiplicand, ProductMultiplier]
         
         # remain steps
+        # go through all steps, except init step
         for i in range(1, self.__nbit + 1):
-            # 1->If first bit of ProductMultiplier is 1 
-            # a. Hi(ProductMultiplier) = Hi(ProductMultiplier) + Mulcand
-            # Else b. Else no operation   
+            # If first bit of ProductMultiplier is 1 
+            # 1a -> ProductMultiplier = Hi(ProductMultiplier) + Mulcand
+            # Else 1b -> Else no operation   
             if (get_bit(ProductMultiplier, 0) == 1):
-                log[i][2][0] = 1
+                log[i][2][0] = 1                        #turn on changeFlag
                 ProductMultiplier = ProductMultiplier + (multiplicand << self.__nbit)
             
             log[i, 0] = [multiplicand, ProductMultiplier]
@@ -155,13 +156,14 @@ class ALU:
         return(log)
 
     def __run_div3(self):
-        # log
+        # create a log to store all steps
+        # log shape:
         # shape[0] : number of steps(include init step)
         # shape[1] : number of actions every step + 1 ChangeFlag
         # shape[2] = number of registers
         log = np.zeros((self.__nbit + 2, 4, 3), dtype = np.uint64)
        
-        # check if there is any error or not
+        # check whether there is any error or not
         if (self.error & self.ERROR_OVERFLOW) or (self.error & self.ERROR_ZERODIVISION):
             return
 
@@ -174,19 +176,20 @@ class ALU:
         log[0][0] = [quotient, divisor, remainder]
         
         # remain steps
+        # go through all step, except init step
         for i in range(1, self.__nbit + 2):
             # 1 -> remainder = remainder - divisor
             remainder = remainder - divisor
             log[i][0] = [quotient, divisor, remainder]
 
             # 2 -> shilf left quotient 1 bit
-            # a. if remainder < 0, remainder = remainder + divisor
-            # b. else turn on first bit of quotient
+            # if remainder < 0(last bit = 1), a -> remainder = remainder + divisor
+            # else b -> turn on first bit of quotient
             quotient = quotient << 1
             if (get_bit(remainder, self.__nbit * 2 - 1) == 1):
                 remainder = remainder + divisor
             else:
-                log[i][3][0] = 1
+                log[i][3][0] = 1        #turn on changeFlag
                 quotient = turn_on_bit(quotient, 0)
 
             log[i][1] = [quotient, divisor, remainder]

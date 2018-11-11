@@ -1,11 +1,17 @@
-convert ALU Simulator.au3 to exe file
-convert server.py to exe file
+Link download: https://drive.google.com/open?id=188SdTe9ozxmc37jlxRBNWAwK0WkqP8Bu
 
-Create folder tree like below
-[In ..]
-ALU Simulator.exe
-server
-[In server]
-server.exe
+Extract ALU_Simulator_vxx.zip
+run laucher.exe
 
-Then running ALU Simulator.exe
+
+To test code, you must run ALU Simulator.au3 and core/server.py together.
+ALU Simulator.au3 and server.py will connect each other.
+
+
+*.au3 is AutoIT file. You should install AutoIT to open and run it.
+	AutoIT provides a tool to convert au3 to exe.
+
+*.py is Python file. You can using any editor to open it. If you want to run it, please
+install latest release Python3 or Anaconda.
+	Python provides a way to convert python file to exe, you must install pyinstaller
+and py2exe. Then run command "pyinstaller --onefile file_name.py".
