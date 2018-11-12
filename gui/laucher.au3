@@ -67,8 +67,19 @@ Func start_laucher()
    GUICtrlSetColor(-1, 0xEEEEEE)
    GUICtrlSetFont(-1, 30, 400, 0, "Time New Romans")
 
+   WinSetTrans($laucher, "", 0)
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
+
+
+   ; If Connection is not ready, show laucher with message "Connecting..."
+   ; Otherwise, start laucher without that message
+   $FadeFlag = 0
+   If $Connection = -1 Then
+	  Fade($laucher, 1)
+   Else
+	  $FadeFlag = 1
+   EndIf
 
    ; Try to connect with ALU
    $flag = 0
@@ -91,6 +102,14 @@ Func start_laucher()
 	  Exit
    EndIf
 
+
+   ; Start laucher without message "Connecting..."
+   If $FadeFlag = 1 Then
+	  Fade($laucher, 1)
+	  $FadeFlag = 1
+   EndIf
+
+
    $fOverLauch = False
    $fOverClose = False
 
@@ -106,11 +125,12 @@ Func start_laucher()
 	  $click = ControlOnClick($cursor)
 	  Switch $click
 		 Case $lauch
+			Fade($laucher, 0)
 			GUIDelete($laucher)
-			Sleep($SOFT_TIME)
 			$flag = 1
 			ExitLoop
 		 Case $close
+			Fade($laucher, 0)
 			GUIDelete($laucher)
 			$flag = 0
 			ExitLoop

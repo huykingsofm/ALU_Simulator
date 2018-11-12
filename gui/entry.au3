@@ -122,7 +122,11 @@ Func start_entry()
    GUICtrlSetBkColor(-1, $COLOR_BUTTON)
 
    ControlFocus("ALU", "", $Title)
+
+   WinSetTrans($entry, "", 0)
+
    GUISetState(@SW_SHOW)
+   Fade($entry, 1)
    #EndRegion ### END Koda GUI section ###
 
    $fOverBack = False
@@ -140,8 +144,8 @@ Func start_entry()
 	  If $event <> -1 Then
 		 Switch $event
 			Case $back
+			   Fade($entry, 0)
 			   GUIDelete($entry)
-			   Sleep($SOFT_TIME)
 			   $flag = 1
 			   ExitLoop
 			Case $import
@@ -190,13 +194,17 @@ Func start_entry()
 
 				  $error = extractLog($data, $EXTRACT_ERROR)
 				  Select
-					 Case BitAND($error, 1) <> 0
-						DisplayNotification("ERROR", "Undentified Error Occur")
-					 Case BitAND($error, 8) <> 0
+					 Case BitAND($error, $ERROR_BASERANGE) <> 0
+						DisplayNotification("ERROR", "Base must be in [2, 16]")
+					 Case BitAND($error, $ERROR_VALUERANGE) <> 0
+						DisplayNotification("ERROR", "Value must be a " & $nbit & "-bit number")
+					 Case BitAND($error, $ERROR_BITRANGE) <> 0
+						DisplayNotification("ERROR", "Number of bits must be in [1, 24]")
+					 Case BitAND($error, $ERROR_NEGATIVE) <> 0
 						DisplayNotification("ERROR", "Positive number is not permitted")
 					 Case Else
+						Fade($entry, 0)
 						GUIDelete($entry)
-						Sleep($SOFT_TIME)
 						$flag = 2
 						ExitLoop
 				  EndSelect

@@ -12,11 +12,15 @@
 ;
 ; PUBPLIC FUNCTIONS:
 ;	EventOnCover(controlID, cursor, curColor, newColor, px, py, w, h, fontsize, changeFlag, ByRef fOver)
+;	EventOnCoverPic(PicID, cursor, curPic, newPic, px, py, w, h, ByRef fOver)
 ;	ControlOnClick(cursor)
 ;	extractLog(data, flag)
 ;	seperate(binary, sep)
 ;	getmin(a, b)
 ;	getmax(a, b)
+;	Fade(hWnd, flag)
+;	_hBmpToPicControl(iCID, hBmp, iFlag = 0)
+;	_GetWHI(sImage)
 ;
 ; PUBPLIC CONSTANTS:
 ;	See detail in below......
@@ -43,11 +47,20 @@
    $EXTRACT_MUL3 = 2
    $EXTRACT_MUL2 = 4
    $EXTRACT_DIV3 = 8
+
+   $ERROR_UNDENTIFIED = 1
+   $ERROR_ZERODIVISION = 2
+   $ERROR_OVERFLOW = 4
+   $ERROR_NEGATIVE = 8
+   $ERROR_VALUERANGE = 16
+   $ERROR_BASERANGE = 32
+   $ERROR_BITRANGE = 64
+
 #EndRegion
 
 #include-once
 #include <String.au3>
-
+#include <GDIPlus.au3>
 ;============================================================================
 ; Func EventOnCover(controlID, cursor, curColor, newColor, px, py, w, h, fontsize, changeFlag, ByRef fOver)
 ; Purpose: Change status of control if cursor cover it
@@ -81,6 +94,37 @@ Func EventOnCover($controlID, $cursor, $curColor, $newColor, $px, $py, $w, $h, $
 			GUICtrlSetFont($controlID, $fontsize, 400, 0, "Arial Rounded MT Bold")
 		 EndIf
 		 GUICtrlSetBkColor($controlID, $curColor)
+		 $fOver = False
+	  EndIf
+   EndIf
+EndFunc
+
+;============================================================================
+; Func EventOnCoverPic(PicID, cursor, curPic, newPic, px, py, w, h, ByRef fOver); Purpose: Change status of control if cursor cover it
+;
+; Purpose: Change status of Pic if cursor cover it
+;
+; Parameters:
+;	+ PicID: 			handler of Pic
+;	+ cursor:			value is returned by GUIGetCursorInfo()
+;	+ curPic:			hBITMAP is return by _GetWHI()
+;	+ newColor:			hBITMAP is return by _GetWHI()
+;	+ px, py, w, h:		position (left, top, witdh, height) of Pic
+;	+ fOver:			a flag check whether cursor is on control or not
+; Return:
+;	+ no return
+;=============================================================================
+Func EventOnCoverPic($PicID, $cursor, $curPic, $newPic, $px, $py, $w, $h, ByRef $fOver)
+   If $cursor[4] = $PicID Then
+	  If $fOver = False Then
+		 _hBmpToPicControl($PicID, $newPic)
+		 GUICtrlSetPos($PicID, $px, $py, $w, $h)
+		 $fOver = True
+	  EndIf
+   Else
+	  If $fOver = True Then
+		 _hBmpToPicControl($PicID, $curPic)
+		 GUICtrlSetPos($PicID, $px, $py, $w, $h)
 		 $fOver = False
 	  EndIf
    EndIf
@@ -175,3 +219,77 @@ Func seperate($binary, $sep)
 
    Return $binary
 EndFunc
+
+
+;==============================================================================
+; Func Fade(hWnd, flag)
+; Purpose: Provide a Smooth starting and ending GUI
+;
+; Parameters:
+;	+ hWnd: handle of GUI
+;	+ flag = 1, starting GUI
+;	  flag = 0, ending GUI
+;
+; Return:
+;	no-return
+;================================================================================
+Func Fade($hWnd, $flag)
+   $b = 255
+   $e = 0
+   $s = -15
+
+   If $flag == 1 Then
+	  $b = 0
+	  $e = 252
+	  $s = 12
+   EndIf
+
+   For $i = $b To $e Step $s
+	  WinSetTrans($hWnd, "", $i)
+	  Sleep(1)
+   Next
+EndFunc
+
+;================================================================================
+; Func _GetWHI(sImage)
+;
+; Purpose : Get infomation of image
+;
+; Parameter:
+; 	+ sImage = Path to your image
+; Returns
+;	+ Array[3]
+;         Array[0] = Width
+;         Array[1] = Height
+;         Array[2] = handle to a HBITMAP
+;================================================================================
+Func _GetWHI($sImage)
+    Local $hImage, $aRet[3]
+    _GDIPlus_Startup()
+    $hImage = _GDIPlus_ImageLoadFromFile($sImage)
+    $aRet[0] = _GDIPlus_ImageGetWidth($hImage)
+    $aRet[1] = _GDIPlus_ImageGetHeight($hImage)
+    $aRet[2] = _GDIPlus_BitmapCreateHBITMAPFromBitmap($hImage)
+    _GDIPlus_ImageDispose($hImage)
+    _GDIPlus_Shutdown()
+    Return $aRet
+ EndFunc   ;==>_GetWHI
+
+;=================================================================================
+; Func _hBmpToPicControl(iCID, hBmp, iFlag = 0)
+;
+; Purpose : Insert BITMAP image into ControlPic
+;
+; Parameters:
+; 	+ iCID = Control ID as returned from GUICtrlCreatePic()
+; 	+ hBmp = HBITMAP as returned by _GetWHI()
+; 	+ iFlag = Set to 1 will delete the $hBmp object after setting it the pic control
+;=================================================================================
+Func _hBmpToPicControl($iCID, $hBmp, $iFlag = 0)
+    Local Const $STM_SETIMAGE = 0x0172
+    Local Const $IMAGE_BITMAP = 0
+    Local $hOldBmp
+    $hOldBmp = GUICtrlSendMsg($iCID, $STM_SETIMAGE, $IMAGE_BITMAP, $hBmp)
+    If $hOldBmp Then _WinAPI_DeleteObject($hOldBmp)
+    If $iFlag Then _WinAPI_DeleteObject($hBmp)
+EndFunc   ;==>_hBmpToPicControl

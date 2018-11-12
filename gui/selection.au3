@@ -57,7 +57,12 @@ Func start_selection($data, $nbit)
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, 0x222222)
    GUICtrlSetColor(-1, 0xEEEEEE)
+
+   WinSetTrans($selection, "", 0)
+
    GUISetState(@SW_SHOW)
+
+   Fade($selection, 1)
    #EndRegion ### END Koda GUI section ###
 
    $fOverMul3 = False
@@ -78,34 +83,31 @@ Func start_selection($data, $nbit)
 
 	  Switch $click
 		 Case $back
+			Fade($selection, 0)
 			GUIDelete($selection)
-			Sleep($SOFT_TIME)
 			$flag = 1
 			ExitLoop
 		 Case $mul_3
+			Fade($selection, 0)
 			GUIDelete($selection)
-			Sleep($SOFT_TIME)
 			$flag = 2
 			ExitLoop
 		 Case $mul_2
+			Fade($selection, 0)
 			GUIDelete($selection)
-			Sleep($SOFT_TIME)
 			$flag = 3
 			ExitLoop
 		 Case $div_3
-			$zeroError = 2
-			$overflowError = 4
-
 			$error = extractLog($data, $EXTRACT_ERROR)
 
-			If BitAND($error, $zeroError) Then
+			If BitAND($error, $ERROR_ZERODIVISION) Then
 			   DisplayNotification("ERROR", "Zero Division Error")
-			ElseIf BitAND($error, $overflowError) Then
+			ElseIf BitAND($error, $ERROR_OVERFLOW) Then
 			   DisplayNotification("ERROR", "Get Risk of OverFlow")
 			Else
+			   Fade($selection, 0)
 			   GUIDelete($selection)
 			   $flag = 4
-			   Sleep($SOFT_TIME)
 			   ExitLoop
 			EndIf
 			Sleep($SOFT_TIME)

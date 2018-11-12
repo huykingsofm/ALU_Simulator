@@ -19,16 +19,10 @@
 #   getbit(a, n)                        return 1/0
 #   turn_on_bit(a, n)                   return int
 #   out_of_range(value, min, max)       return boolean
-#   removeRedundancyOfString(s)         return string
-#   compressLog(log)                    return string
 #
 # See detail in below..........
 #==========================================================================================
 """
-
-import numpy as np
-import re
-
 def maxValue(nbit):
     """
     Function  maxValue(nbit)
@@ -67,7 +61,7 @@ def any2dec(a, base):
     """
     # preprocessing
     n = len(a)
-    letter = np.array(['A', 'B', 'C', 'D', 'E', 'F', 'G'])
+    letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
     
     # check base range
     if  base < 2 or base > 16:
@@ -92,25 +86,26 @@ def any2dec(a, base):
             return -1
 
     # change all character to number
-    num = np.zeros((n), dtype = np.uint64)
+    num = []
     for i in range(n):
         if (a[i].isdigit()):
-            num[i] = int(a[i])
+            num += [int(a[i])]
         else:
-            num[i] = np.where(letter == a[i])[0][0] + 10
-
+            # find where letter in
+            for k in range(len(letter)):
+                if (a[i] == letter[k]):
+                    num += [k + 10]         # example : if a[i] = 'A' then num = 10
+                    break
+    
     # change base
+    # 
     pow = 1
     res = 0
-    max = maxValue(64)
     for i in range(n - 1, -1, -1):
-        if res + int(num[i]) * pow > max:
-            return -1
         res += int(num[i]) * pow
         pow = pow * base
     
     return res
-
 
 def dec2bin(d, nbit = 24, sep = 6):
     """
@@ -130,7 +125,9 @@ def dec2bin(d, nbit = 24, sep = 6):
     """
     
     # conver decimal binary
-    b = bin(d)
+    # if d > 0, d likes 0bxxxx
+    # if d < 0, d likes -0bxxxx
+    b = bin(abs(d))
     b = b[2:]
 
     # check number of bit whether exceed to nbit or not
@@ -143,10 +140,28 @@ def dec2bin(d, nbit = 24, sep = 6):
     # add zero in to left of string to enough nbit
     b = b.rjust(nbit, "0")
 
+    # if d < 0, convert it to 2's complement
+    if d < 0:
+        temp = ""
+        for i in range(len(b)):
+            temp += "0" if b[i] == "1" else "1"
+        
+        flag = 0
+        b = ""
+        for i in range(len(temp) - 1, -1, -1):
+            if (flag == 0):
+                if (temp[i] == "1"):
+                    b = "0" + b
+                else:
+                    flag = 1
+                    b = "1" + b
+            else:
+                b = temp[i] + b
+
     # separate string into many clusters to make more readable
     if sep > 0 :
         for i in range(len(b) - sep, 0, -sep):
-            b[i:i] = " "
+            b = b[:i] + " " + b[i:]
 
     return b
 
@@ -211,65 +226,3 @@ def out_of_range(value, min, max):
     if (value < min or value > max):
         return True
     return False
-
-
-def removeRedundancyOfString(s):
-    """
-    Purpose: remove all brackets and redundant spaces of string
-
-    Parameter:
-        s   string      the passed string
-
-    Return:
-        the string without brackets and redundant spaces
-
-    Example:
-        removeRedundancyOfString("[1  2   3]")
-        Return: "1 2 3"
-    """
-    # remove bracket
-    s = str(s).replace("[", "")
-    s = s.replace("]", "")
-
-    # remove redundant space
-    s = s.strip()
-    s = re.sub(' +', ' ', s)
-    return s
-
-def convertLog(log, nbit):    
-    """
-    Purpose: Convert log returned by ALU.run() to string
-
-    Parameter:
-        log     ndarray     the log which is returned by ALU.run() 
-
-    Return:
-        A string instead of ndarray with a different format
-    """
-
-    # store init step
-    
-    nLog = log.shape[0]
-    nReg = log.shape[1] - 1 
-
-    log_s = ""
-    for k in range(nReg):
-        p = 2 if k != 0 else 1
-        log_s += dec2bin(log[0][0][k], nbit = nbit * p, sep=nbit * p)
-        if k != nReg - 1:
-            log_s += " "
-    # store remain steps
-    for i in range(1, nLog):
-        #store changeFlag
-        log_s += "," + str(log[i][nReg][0])
-
-        #store registers
-        for j in range(nReg):
-            log_s += ","
-            for k in range(nReg):
-                p = 2 if k != 0 else 1
-                log_s += dec2bin(log[i][j][k], nbit=nbit * p, sep=nbit * p)
-                if k != nReg - 1:
-                    log_s += " "
-
-    return log_s

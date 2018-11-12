@@ -67,13 +67,20 @@ Func start_div3($data, $nbit)
    GUICtrlSetColor(-1, 0xFFFFFF)
    GUICtrlSetBkColor(-1, 0x333333)
 
-   $up = GUICtrlCreateLabel("UP", 555, 70, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
-   GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
-   GUICtrlSetBkColor(-1, $C_UPDOWN)
+   $WHI_up = _GetWHI("img/up.png")
+   $WHI_up1 = _GetWHI("img/up1.png")
 
-   $down = GUICtrlCreateLabel("DOWN", 555, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
-   GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
-   GUICtrlSetBkColor(-1, $C_UPDOWN)
+
+   $up = GUICtrlCreatePic("", 575, 70, 100, 101)
+   _hBmpToPicControl($up, $WHI_up[2])
+   GUICtrlSetPos(-1, 575, 70, 100, 65)
+
+   $WHI_down = _GetWHI("img/down.png")
+   $WHI_down1 = _GetWHI("img/down1.png")
+
+   $down = GUICtrlCreatePic("", 575, 570, 100, 101)
+   _hBmpToPicControl($down, $WHI_down[2])
+   GUICtrlSetPos(-1,  575, 590, 100, 65)
 
    $back = GUICtrlCreateLabel("BACK", 880, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
@@ -166,8 +173,12 @@ Func start_div3($data, $nbit)
    $begin = 1
    load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 
+   WinSetTrans($div3, "", 0)
+
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
+
+   Fade($div3, 1)
 
    $fOverUp = False
    $fOverDown = False
@@ -175,16 +186,17 @@ Func start_div3($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($div3)
-	  EventOnCover($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 70, 100, 60, 22, True, $fOverUp)
-	  EventOnCover($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 555, 590, 100, 60, 22, True, $fOverDown)
+
+	  EventOnCoverPic($up, $cursor, $WHI_up[2], $WHI_up1[2], 575, 70, 100, 65, $fOverUp)
+	  EventOnCoverPic($down, $cursor, $WHI_down[2], $WHI_down1[2], 575, 590, 100, 65, $fOverDown)
 	  EventOnCover($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 880, 590, 100, 60, 22, True, $fOverBack)
 
 	  $click = ControlOnClick($cursor)
 
 	  Switch $click
 		 Case $back
+			Fade($div3, 0)
 			GUIDelete($div3)
-			Sleep($SOFT_TIME)
 			ExitLoop
 		 Case $up
 			$begint = $begin
@@ -241,6 +253,7 @@ Func load_div3($d, $begin, $nbit, $iter, $step, $quotient, $divisor, $remainder)
 		 GUICtrlSetData($quotient[$i][$j], seperate($t[1], $sep))
 		 GUICtrlSetData($divisor[$i][$j], seperate($t[2], $sep))
 		 GUICtrlSetData($remainder[$i][$j], seperate($t[3], $sep))
+		 Sleep(1)
 
 		 $count += 1
 	  Next

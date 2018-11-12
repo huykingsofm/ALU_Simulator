@@ -71,13 +71,20 @@ Func start_mul3($data, $nbit)
    GUICtrlSetColor(-1, 0xFFFFFF)
    GUICtrlSetBkColor(-1, 0x333333)
 
-   $up = GUICtrlCreateLabel("UP", 575, 70, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
-   GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
-   GUICtrlSetBkColor(-1, $C_UPDOWN)
 
-   $down = GUICtrlCreateLabel("DOWN", 575, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
-   GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
-   GUICtrlSetBkColor(-1, $C_UPDOWN)
+   $WHI_up = _GetWHI("img/up.png")
+   $WHI_up1 = _GetWHI("img/up1.png")
+
+   $up = GUICtrlCreatePic("", 575, 70, 100, 101)
+   _hBmpToPicControl($up, $WHI_up[2])
+   GUICtrlSetPos(-1, 575, 70, 100, 65)
+
+   $WHI_down = _GetWHI("img/down.png")
+   $WHI_down1 = _GetWHI("img/down1.png")
+
+   $down = GUICtrlCreatePic("", 575, 570, 100, 101)
+   _hBmpToPicControl($down, $WHI_down[2])
+   GUICtrlSetPos(-1,  575, 590, 100, 65)
 
    $back = GUICtrlCreateLabel("BACK", 915, 590, 100, 60, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
@@ -167,8 +174,12 @@ Func start_mul3($data, $nbit)
    $begin = 1
    load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 
+   WinSetTrans($mul3, "", 0)
+
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
+
+   Fade($mul3, 1)
 
    $fOverUp = False
    $fOverDown = False
@@ -176,16 +187,17 @@ Func start_mul3($data, $nbit)
 
    While 1
 	  $cursor = GUIGetCursorInfo($mul3)
-	  EventOnCover($up, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 70, 100, 60, 22, True, $fOverUp)
-	  EventOnCover($down, $cursor, $C_UPDOWN, $C_UPDOWN_HOVER, 575, 590, 100, 60, 22, True, $fOverDown)
+
+	  EventOnCoverPic($up, $cursor, $WHI_up[2], $WHI_up1[2], 575, 70, 100, 65, $fOverUp)
+	  EventOnCoverPic($down, $cursor, $WHI_down[2], $WHI_down1[2], 575, 590, 100, 65, $fOverDown)
 	  EventOnCover($back, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, 915, 590, 100, 60, 22, True, $fOverBack)
 
 	  $click = ControlOnClick($cursor)
 
 	  Switch $click
 		 Case $back
+			Fade($mul3, 0)
 			GUIDelete($mul3)
-			Sleep($SOFT_TIME)
 			ExitLoop
 		 Case $up
 			$begint = $begin
@@ -241,6 +253,8 @@ Func load_mul3($d, $begin, $nbit, $iter, $step, $mulcand, $muler, $prod)
 		 GUICtrlSetData($mulcand[$i][$j], seperate($t[1], $sep))
 		 GUICtrlSetData($muler[$i][$j], seperate($t[2], $sep))
 		 GUICtrlSetData($prod[$i][$j], seperate($t[3], $sep))
+		 Sleep(1)
+
 		 $count += 1
 	  Next
    Next

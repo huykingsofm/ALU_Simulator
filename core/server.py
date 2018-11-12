@@ -13,48 +13,12 @@
 # PURPOSE:          provide a API to wait a connection from ALU laucher
 #========================================================================================
 """
-import numpy as np
+#import numpy as np
 import socket
-from utilities import dec2bin, convertLog
+from utilities import dec2bin
 from ALU import ALU
 
 
-def importALU(data):
-    """
-    Purpose: Convert all logs and error returned by ALU.run() to string
-
-    Parameter:
-        data    ndarray     include parameters of ALU
-    
-    Return:
-        If success, return a string format of logs and error
-        If failure, return only <error> format
-    """
-    a = data[0]
-    b = data[1]
-    base = int(data[2])
-    nbit = int(data[3])
-
-    processor = ALU(a, b, base, nbit)
-    error = processor.error
-    m3, m2, d3 = processor.run()
-
-    # solve m3
-    m3_s = ""
-    if (error & ALU.ERROR_UNDENTIFIED) != ALU.ERROR_UNDENTIFIED:
-        m3_s = convertLog(m3, nbit)
-        
-    # solve m2
-    m2_s = ""
-    if (error & ALU.ERROR_UNDENTIFIED) != ALU.ERROR_UNDENTIFIED:
-        m2_s = convertLog(m2, nbit)
-
-    # solve d3
-    d3_s = ""
-    if error == 0:
-        d3_s = convertLog(d3, nbit)
-
-    return str(error) + "|" + m3_s + "|" + m2_s + "|" + d3_s
 
 def call(data):
     """
@@ -76,10 +40,14 @@ def call(data):
     returnValue = ""
 
     if (func == "ALU" and len(arg) == 4):
-        returnValue = importALU(arg)
+        base = int(arg[2])
+        nbit = int(arg[3])
+        alu = ALU(arg[0], arg[1], base, nbit)
+        alu.run()
+        returnValue = alu.convertAll()
         
     elif (func == "DEC2BIN" and len(arg) == 2):
-        dec = np.uint64(arg[0])
+        dec = int(arg[0])
         nbit = int(arg[1])
         returnValue = dec2bin(dec, nbit = nbit, sep = int(nbit / 4))
 
