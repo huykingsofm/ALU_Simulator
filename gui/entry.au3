@@ -33,7 +33,7 @@
 ;=============================================================================
 Func start_entry()
    #Region ### CONSTANT
-   $PY = 300
+   $PY = 305
 
    $PX_IMPORT = 100
    $PX_BACK = 360
@@ -50,21 +50,21 @@ Func start_entry()
 
    #Region Create 2 input boxes which store A, B - the numbers are entries of ALU
    ; image and label
-   $LabelA = GUICtrlCreateLabel("A", 118, 130, 49, 36, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $LabelA = GUICtrlCreateLabel("A", 118, 127, 49, 36, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
    GUICtrlSetBkColor(-1, 0x222222)
 
-   $LabelB = GUICtrlCreateLabel("B", 118, 180, 49, 36, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $LabelB = GUICtrlCreateLabel("B", 118, 177, 49, 36, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
    GUICtrlSetBkColor(-1, 0x222222)
 
    $PicA = GUICtrlCreatePic("E:\Save code\Python\ALU project\img\input1.jpg", 166, 110, 300, 40)
-   GUICtrlSetState($PicA, $GUI_DISABLE)
+   ;GUICtrlSetState($PicA, $GUI_DISABLE)
 
    $PicB = GUICtrlCreatePic("E:\Save code\Python\ALU project\img\input1.jpg", 166, 160, 300, 40)
-   GUICtrlSetState($PicB, $GUI_DISABLE)
+   ;GUICtrlSetState($PicB, $GUI_DISABLE)
 
    ; Create input boxes
    $InputA = GUICtrlCreateInput('', 170, 135, 280, 20, 0x0001, 0)
@@ -79,33 +79,33 @@ Func start_entry()
    #EndRegion
    #Region ### Create selection of base of number and number of bits
    ; n can be bin(base-2), oct(base-8), dec(base-10), hex(base-16), or other in [1, 16]
-   $labelBin = GUICtrlCreateLabel("BIN", 50, 250)
+   $labelBin = GUICtrlCreateLabel("BIN", 70, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
-   $bin = GUICtrlCreateRadio("", 85, 249, 20, 20)
+   $bin = GUICtrlCreateRadio("", 105, 249, 20, 20)
 
-   $labelOct = GUICtrlCreateLabel("OCT", 150, 250)
+   $labelOct = GUICtrlCreateLabel("OCT", 170, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
-   $oct = GUICtrlCreateRadio("", 185, 249, 20, 20)
+   $oct = GUICtrlCreateRadio("", 205, 249, 20, 20)
 
-   $labelDec = GUICtrlCreateLabel("DEC", 250, 250)
+   $labelDec = GUICtrlCreateLabel("DEC", 270, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
-   $dec = GUICtrlCreateRadio(Null, 285, 249, 20, 20)
+   $dec = GUICtrlCreateRadio(Null, 305, 249, 20, 20)
 
-   $labelHex = GUICtrlCreateLabel("HEX", 350, 250)
+   $labelHex = GUICtrlCreateLabel("HEX", 370, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
-   $hex = GUICtrlCreateRadio("", 385, 249, 20, 20)
+   $hex = GUICtrlCreateRadio("", 405, 249, 20, 20)
 
    $defaultNbit = 24
-   $nbitInput = GUICtrlCreateInput("", 450, 248, 30, 0, BitOr($ES_NUMBER, $SS_RIGHT))
+   $nbitInput = GUICtrlCreateInput("", 470, 248, 30, 0, BitOr($ES_NUMBER, $SS_RIGHT))
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0x000000)
    GUICtrlSetFont(-1, 10, 800, Default, "Arial", 5)
    GUICtrlSendMsg(-1, $EM_SETCUEBANNER, False, "24")
-   GUICtrlCreateLabel("Bits", 485, 250)
+   GUICtrlCreateLabel("Bits", 505, 250)
    GUICtrlSetFont(-1, 10, 800, 0, "Arial")
    GUICtrlSetColor(-1, 0xFFFFFF)
    #EndRegion
@@ -222,7 +222,7 @@ Func start_entry()
 	  EndIf
    WEnd
    If $flag = 1 Then
-	  start_laucher()
+	  start_launcher()
    ElseIf $flag = 2 Then
 	  start_selection($data, $nbit)
    EndIf

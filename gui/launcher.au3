@@ -5,13 +5,13 @@
 ;	Edu Email: 		17520074@gm.uit.edu.vn
 ;	Github: 		https://github.com/huykingsofm/ALU_Simulator.git
 ;
-; File Name: 		laucher.au3
+; File Name: 		launcher.au3
 ; Language:			AutoIT
 ; Modified Date:	Dec 10 2018
-; Purpose: 	Provide a procedure which run a Laucher to start a series of Metro-UIs of ALU Simulator
+; Purpose: 	Provide a procedure which run a launcher to start a series of Metro-UIs of ALU Simulator
 ;			Morever, it also connect to API to run some special functions
 ; PUPBLIC FUNCTION:
-;	start_laucher()
+;	start_launcher()
 ;=============================================================================================================
 
 ; Include some nessessary libraries
@@ -21,9 +21,10 @@
 #include <WindowsConstants.au3>
 #include "entry.au3"
 #include "ALU.au3"
+#include "about.au3"
 
 ;============================================================================
-; Func start_laucher()
+; Func start_launcher()
 ; Purpose: Provide a connection to ALU
 ;
 ; Parameters:
@@ -32,17 +33,17 @@
 ;	+ no return
 ;=============================================================================
 
-Func start_laucher()
+Func start_launcher()
    #Region LOCAL CONSTANT
    $PY = 250
 
-   $PX_LAUCH = 100
+   $PX_launch = 100
    $PX_CLOSE = 360
 
    #EndRegion
 
    #Region ### START Koda GUI section ### Form=
-   $laucher = GUICreate("laucher", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
+   $launcher = GUICreate("launcher", $W_WINDOW, $H_WINDOW, $PX_WINDOW, $PY_WINDOW, $WS_POPUP)
    GUISetBkColor($C_WINDOW)
 
    $Welcome = GUICtrlCreateLabel("Welcome to ALU Simulator", 0, 0, $W_WINDOW, 250, BitOR($SS_CENTER,$SS_CENTERIMAGE))
@@ -53,7 +54,7 @@ Func start_laucher()
    GUICtrlSetColor(-1, 0xEEEEEE)
    GUICtrlSetFont(-1, 20, 400, 0, "Bahnschrift Condensed")
 
-   $lauch = GUICtrlCreateLabel("LAUCH", $PX_LAUCH, $PY, $W_BUTTON, $H_BUTTON, BitOR($SS_CENTER,$SS_CENTERIMAGE))
+   $launch = GUICtrlCreateLabel("LAUNCH", $PX_launch, $PY, $W_BUTTON, $H_BUTTON, BitOR($SS_CENTER,$SS_CENTERIMAGE))
    GUICtrlSetFont(-1, 22, 400, 0, "Arial Rounded MT Bold")
    GUICtrlSetBkColor(-1, $COLOR_BUTTON)
    GUICtrlSetState(-1, $GUI_HIDE)
@@ -67,16 +68,16 @@ Func start_laucher()
    GUICtrlSetColor(-1, 0xEEEEEE)
    GUICtrlSetFont(-1, 30, 400, 0, "Time New Romans")
 
-   WinSetTrans($laucher, "", 0)
+   WinSetTrans($launcher, "", 0)
    GUISetState(@SW_SHOW)
    #EndRegion ### END Koda GUI section ###
 
 
-   ; If Connection is not ready, show laucher with message "Connecting..."
-   ; Otherwise, start laucher without that message
+   ; If Connection is not ready, show launcher with message "Connecting..."
+   ; Otherwise, start launcher without that message
    $FadeFlag = 0
    If $Connection = -1 Then
-	  Fade($laucher, 1)
+	  Fade($launcher, 1)
    Else
 	  $FadeFlag = 1
    EndIf
@@ -91,7 +92,7 @@ Func start_laucher()
    ; If connect successful, show control to go to entry of ALU
    If $Connection <> -1 Then
 	  GUICtrlSetState($wait, $GUI_HIDE)
-	  GUICtrlSetState($lauch, $GUI_SHOW)
+	  GUICtrlSetState($launch, $GUI_SHOW)
 	  GUICtrlSetState($close, $GUI_SHOW)
 
 
@@ -103,37 +104,45 @@ Func start_laucher()
    EndIf
 
 
-   ; Start laucher without message "Connecting..."
+   ; Start launcher without message "Connecting..."
    If $FadeFlag = 1 Then
-	  Fade($laucher, 1)
+	  Fade($launcher, 1)
 	  $FadeFlag = 1
    EndIf
 
 
-   $fOverLauch = False
+   $fOverlaunch = False
    $fOverClose = False
 
    While 1
-	  $cursor = GUIGetCursorInfo($laucher)
+	  $cursor = GUIGetCursorInfo($launcher)
 
 	  ; Change status of label if cursor covers it
-	  EventOnCover($lauch, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_LAUCH, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverLauch)
+	  EventOnCover($launch, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_launch, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverlaunch)
 	  EventOnCover($close, $cursor, $COLOR_BUTTON, $COLOR_BUTTON_HOVER, $PX_CLOSE, $PY, $W_BUTTON, $H_BUTTON, 22, True, $fOverClose)
 
 
 	  ; Get and solve click event
 	  $click = ControlOnClick($cursor)
 	  Switch $click
-		 Case $lauch
-			Fade($laucher, 0)
-			GUIDelete($laucher)
+		 Case $launch
+			Fade($launcher, 0)
+			GUIDelete($launcher)
 			$flag = 1
 			ExitLoop
 		 Case $close
-			Fade($laucher, 0)
-			GUIDelete($laucher)
+			Fade($launcher, 0)
+			GUIDelete($launcher)
 			$flag = 0
 			ExitLoop
+		 Case $welcome
+			Fade($launcher, 0)
+			__displayAbout()
+			Fade($launcher, 1)
+		 Case $about
+			Fade($launcher, 0)
+			__displayAbout()
+			Fade($launcher, 1)
 	  EndSwitch
    WEnd
 

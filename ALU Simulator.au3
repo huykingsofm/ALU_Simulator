@@ -13,7 +13,7 @@
 ;
 
 #include-once
-#include "gui/laucher.au3"
+#include "gui/launcher.au3"
 
 
 ; Set a global variable which handle connection with API
@@ -21,7 +21,7 @@
 Global $Connection = -1
 
 ; Start LAUCHER, stay in laucher.au3
-start_laucher()
+start_launcher()
 
 ; Close connection when program finishes
 ALUClose($Connection)
